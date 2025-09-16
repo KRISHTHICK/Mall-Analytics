@@ -1,4 +1,3 @@
-
 # Mall Analytics Dashboard
 
 A highly realistic, multi-layered analytics dashboard for a shopping mall, built with Tailwind CSS and Chart.js.
