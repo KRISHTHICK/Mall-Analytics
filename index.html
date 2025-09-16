@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mall Analytics Dashboard</title>
+    <link href="./public/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-800 p-4">
+            <h1 class="text-2xl font-bold mb-8">Mall Analytics</h1>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="#" class="flex items-center p-2 text-base font-normal text-gray-200 rounded-lg hover:bg-gray-700">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span class="ml-3">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" class="flex items-center p-2 text-base font-normal text-gray-200 rounded-lg hover:bg-gray-700">
+                            <i data-lucide="bar-chart-2"></i>
+                            <span class="ml-3">Reports</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" class="flex items-center p-2 text-base font-normal text-gray-200 rounded-lg hover:bg-gray-700">
+                            <i data-lucide="settings"></i>
+                            <span class="ml-3">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold">Dashboard</h2>
+                    <p class="text-gray-400">Real-time analytics for your mall</p>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex items-center mr-4">
+                        <span class="relative flex h-3 w-3 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-green-400">Real-time</span>
+                    </div>
+                    <button class="p-2 rounded-full hover:bg-gray-700">
+                        <i data-lucide="bell"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Realtime Stats -->
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Realtime Stats</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-400">Total People</p>
+                            <p class="text-2xl font-bold">1,234</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">In Mall</p>
+                            <p class="text-2xl font-bold">567</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">Avg. Dwell Time</p>
+                            <p class="text-2xl font-bold">15m</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">Hot Zones</p>
+                            <p class="text-2xl font-bold">3</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera Status -->
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Camera Status</h3>
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <p class="text-5xl font-bold">16/20</p>
+                            <p class="text-gray-400">Active Cameras</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone Activity -->
+                <div class="bg-gray-800 p-6 rounded-lg col-span-1 md:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Zone Activity</h3>
+                    <canvas id="zoneActivityChart"></canvas>
+                </div>
+
+                <!-- Heatmap -->
+                <div class="bg-gray-800 p-6 rounded-lg col-span-1 md:col-span-2 lg:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Heatmap</h3>
+                    <div class="relative">
+                        <img src="https://i.imgur.com/O3bS5h2.png" alt="Mall Floor Plan" class="rounded-lg">
+                        <div class="absolute inset-0 bg-red-500 opacity-20 rounded-lg"></div>
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <div class="bg-gray-800 p-6 rounded-lg col-span-1 md:col-span-2 lg:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Top Products</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-center">
+                            <img src="https://i.imgur.com/JlsA2T7.png" alt="Product" class="w-12 h-12 rounded-lg mr-4">
+                            <div>
+                                <p class="font-semibold">Product A</p>
+                                <p class="text-gray-400">123 interactions</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center">
+                            <img src="https://i.imgur.com/JlsA2T7.png" alt="Product" class="w-12 h-12 rounded-lg mr-4">
+                            <div>
+                                <p class="font-semibold">Product B</p>
+                                <p class="text-gray-400">98 interactions</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center">
+                            <img src="https://i.imgur.com/JlsA2T7.png" alt="Product" class="w-12 h-12 rounded-lg mr-4">
+                            <div>
+                                <p class="font-semibold">Product C</p>
+                                <p class="text-gray-400">76 interactions</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const zoneActivityChart = new Chart(document.getElementById('zoneActivityChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Zone A', 'Zone B', 'Zone C', 'Zone D', 'Zone E'],
+                datasets: [{
+                    label: 'People Detected',
+                    data: [65, 59, 80, 81, 56],
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

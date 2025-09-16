@@ -1,0 +1,61 @@
+/*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */
+.absolute {
+  position: absolute;
+}
+.relative {
+  position: relative;
+}
+.col-span-1 {
+  grid-column: span 1 / span 1;
+}
+.flex {
+  display: flex;
+}
+.grid {
+  display: grid;
+}
+.inline-flex {
+  display: inline-flex;
+}
+.h-full {
+  height: 100%;
+}
+.h-screen {
+  height: 100vh;
+}
+.w-full {
+  width: 100%;
+}
+.flex-1 {
+  flex: 1;
+}
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-center {
+  justify-content: center;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
+.rounded-full {
+  border-radius: calc(infinity * 1px);
+}
+.text-center {
+  text-align: center;
+}
+.opacity-20 {
+  opacity: 20%;
+}
+.opacity-75 {
+  opacity: 75%;
+}
