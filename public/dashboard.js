@@ -1,4 +1,6 @@
+
 document.addEventListener('DOMContentLoaded', () => {
+    // --- THEME TOGGLE --- //
     const themeToggle = document.getElementById('theme-toggle');
     const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
     const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
@@ -6,60 +8,84 @@ document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
         themeToggleLightIcon.classList.remove('hidden');
-        themeToggleDarkIcon.classList.add('hidden');
     } else {
-        document.documentElement.classList.remove('dark');
-        themeToggleLightIcon.classList.add('hidden');
         themeToggleDarkIcon.classList.remove('hidden');
     }
 
     themeToggle.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        themeToggleLightIcon.classList.toggle('hidden');
         themeToggleDarkIcon.classList.toggle('hidden');
-
-        if (document.documentElement.classList.contains('dark')) {
-            localStorage.setItem('color-theme', 'dark');
+        themeToggleLightIcon.classList.toggle('hidden');
+        if (localStorage.getItem('color-theme')) {
+            if (localStorage.getItem('color-theme') === 'light') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            }
         } else {
-            localStorage.setItem('color-theme', 'light');
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
         }
     });
 
-    // Sidebar Toggle
-    const sidebar = document.querySelector('aside');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-    });
+    // --- SIDEBAR --- //
+    const sidebar = document.getElementById('sidebar');
+    const openSidebarBtn = document.getElementById('sidebar-open');
+    const closeSidebarBtn = document.getElementById('sidebar-close');
+    openSidebarBtn.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+    closeSidebarBtn.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
 
-    // --- DATA RENDERING ---
+    // --- DATA RENDERING --- //
     function renderKeyStats() {
-        document.getElementById('total-people').innerText = dummyData.keyStats.totalPeople.toLocaleString();
-        document.getElementById('current-people').innerText = dummyData.keyStats.currentPeople.toLocaleString();
-        document.getElementById('avg-dwell-time').innerText = `${dummyData.keyStats.avgDwellTime}m`;
-        document.getElementById('hot-zones').innerText = dummyData.keyStats.hotZones;
+        const container = document.getElementById('key-stats-container');
+        container.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Total People Detected">
+                <h3 class="text-lg font-semibold">Total People Detected</h3>
+                <p class="text-4xl font-bold mt-2 animate-counter">${dummyData.keyStats.totalPeople}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Current People in Mall">
+                <h3 class="text-lg font-semibold">Current People in Mall</h3>
+                <p class="text-4xl font-bold mt-2 animate-counter">${dummyData.keyStats.currentPeople}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Average Dwell Time">
+                <h3 class="text-lg font-semibold">Average Dwell Time</h3>
+                <p class="text-4xl font-bold mt-2">${dummyData.keyStats.avgDwellTime}m</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Hot Zones">
+                <h3 class="text-lg font-semibold">Hot Zones</h3>
+                <p class="text-4xl font-bold mt-2 animate-counter">${dummyData.keyStats.hotZones}</p>
+            </div>
+        `;
     }
 
     function renderTopProducts() {
         const productList = document.getElementById('product-list');
         productList.innerHTML = '';
-        dummyData.products.forEach(product => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center';
-            li.innerHTML = `
-                <img src="${product.thumbnail}" alt="Product" class="w-10 h-10 rounded-md">
-                <div class="ml-4">
-                    <p class="font-semibold">${product.name}</p>
-                    <p class="text-sm text-gray-500">Interactions: ${product.interactions}</p>
-                </div>
+        dummyData.products.slice(0, 3).forEach(p => {
+            productList.innerHTML += `
+                <li class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img src="${p.thumbnail}" alt="${p.name}" class="w-10 h-10 rounded-md">
+                        <div class="ml-4">
+                            <p class="font-semibold">${p.name}</p>
+                            <p class="text-sm text-gray-500">${p.interactions} interactions</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">${p.category}</span>
+                </li>
             `;
-            productList.appendChild(li);
         });
     }
 
-    function renderZoneActivity() {
-        const zoneCtx = document.getElementById('zone-chart').getContext('2d');
-        new Chart(zoneCtx, {
+    function renderZoneActivityChart() {
+        const ctx = document.getElementById('zone-chart').getContext('2d');
+        new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: dummyData.zones.map(z => z.name),
@@ -68,96 +94,183 @@ document.addEventListener('DOMContentLoaded', () => {
                     backgroundColor: ['#4F46E5', '#FBBF24', '#10B981'],
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
     function renderCameraStatus() {
         const cameraList = document.getElementById('camera-list');
         cameraList.innerHTML = '';
-        dummyData.cameras.forEach(camera => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center justify-between';
-            li.innerHTML = `
-                <span>${camera.name}</span>
-                <span class="px-2 py-1 text-xs font-semibold text-${camera.status === 'Active' ? 'green' : 'red'}-800 bg-${camera.status === 'Active' ? 'green' : 'red'}-200 rounded-full">${camera.status}</span>
+        dummyData.cameras.slice(0, 3).forEach(c => {
+            cameraList.innerHTML += `
+                <li class="flex items-center justify-between">
+                    <span>${c.name} (${c.zone})</span>
+                    <span class="px-2 py-1 text-xs font-semibold text-${c.status === 'Active' ? 'green' : 'red'}-800 bg-${c.status === 'Active' ? 'green' : 'red'}-200 rounded-full">${c.status}</span>
+                </li>
             `;
-            cameraList.appendChild(li);
+        });
+    }
+    
+    function renderHeatmap() {
+        const container = document.getElementById('heatmap-container');
+        container.innerHTML = '';
+        dummyData.heatmap.forEach(value => {
+            let bgColor = 'bg-green-500';
+            if (value > 75) bgColor = 'bg-red-500';
+            else if (value > 50) bgColor = 'bg-yellow-500';
+            else if (value > 25) bgColor = 'bg-blue-500';
+            container.innerHTML += `<div class="${bgColor} opacity-${Math.floor(value / 25) * 25}" title="Value: ${value}"></div>`;
         });
     }
 
-    function renderEntranceData() {
-        const entranceList = document.getElementById('entrance-list');
-        entranceList.innerHTML = '';
-        dummyData.entrances.forEach(entrance => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center justify-between';
-            li.innerHTML = `
-                <span>${entrance.name}</span>
-                <span class="font-semibold">${entrance.count}</span>
-            `;
-            entranceList.appendChild(li);
+    function animateCounters() {
+        document.querySelectorAll('.animate-counter').forEach(counter => {
+            const target = +counter.innerText.replace(/,/g, '');
+            counter.innerText = '0';
+            const updateCounter = () => {
+                const current = +counter.innerText.replace(/,/g, '');
+                const increment = target / 200;
+                if (current < target) {
+                    counter.innerText = Math.ceil(current + increment).toLocaleString();
+                    setTimeout(updateCounter, 10);
+                } else {
+                    counter.innerText = target.toLocaleString();
+                }
+            };
+            updateCounter();
         });
     }
 
-    function renderAll() {
+    function initializeDashboard() {
         renderKeyStats();
         renderTopProducts();
-        renderZoneActivity();
+        renderZoneActivityChart();
         renderCameraStatus();
-        renderEntranceData();
+        renderHeatmap();
+        renderDwellTimeChart();
+        renderEntranceUsageChart();
+        animateCounters();
+        setupEventListeners();
     }
 
-    renderAll();
+    function renderDwellTimeChart() {
+        const ctx = document.getElementById('dwell-time-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dummyData.zones.map(z => z.name),
+                datasets: [{
+                    label: 'Average Dwell Time (minutes)',
+                    data: dummyData.zones.map(z => z.dwellTime),
+                    backgroundColor: '#FBBF24',
+                }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+        });
+    }
 
-    // --- OVERLAY ---
-    const overlay = document.getElementById('overlay');
-    const closeOverlay = document.getElementById('close-overlay');
-    const chartTypeSelector = document.getElementById('chart-type-selector');
-    const overlayChartCanvas = document.getElementById('overlay-chart').getContext('2d');
+    function renderEntranceUsageChart() {
+        const ctx = document.getElementById('entrance-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dummyData.entrances.map(e => e.name),
+                datasets: [{
+                    label: 'People Count',
+                    data: dummyData.entrances.map(e => e.count),
+                    backgroundColor: '#10B981',
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    // --- MODALS & OVERLAYS --- //
+    const overlayModal = document.getElementById('overlay-modal');
+    const formModal = document.getElementById('form-modal');
     let overlayChart;
 
-    const chartableElements = document.querySelectorAll('.shadow-lg');
+    function setupEventListeners() {
+        document.getElementById('close-overlay').addEventListener('click', () => overlayModal.classList.add('hidden'));
+        document.getElementById('close-form-modal').addEventListener('click', () => formModal.classList.add('hidden'));
 
-    chartableElements.forEach(el => {
-        el.addEventListener('click', () => {
-            const title = el.querySelector('h3').innerText;
-            document.getElementById('overlay-title').innerText = title;
-            openOverlay('doughnut');
+        document.querySelectorAll('.interactive-panel').forEach(el => {
+            el.addEventListener('click', () => {
+                document.getElementById('overlay-title').innerText = el.dataset.modalTitle;
+                openOverlay('doughnut');
+            });
         });
-        el.addEventListener('mouseenter', () => {
-            el.classList.add('shadow-2xl', 'transform', '-translate-y-1');
+        
+        document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const type = e.target.dataset.type;
+                let formHtml = '';
+                if (type === 'product') {
+                    formHtml = `
+                        <form id="add-product-form">
+                            <div class="mb-4">
+                                <label for="product-name" class="block text-sm font-medium">Product Name</label>
+                                <input type="text" id="product-name" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product-interactions" class="block text-sm font-medium">Interactions</label>
+                                <input type="number" id="product-interactions" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product-category" class="block text-sm font-medium">Category</label>
+                                <input type="text" id="product-category" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product-thumbnail" class="block text-sm font-medium">Thumbnail URL</label>
+                                <input type="text" id="product-thumbnail" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
+                            </div>
+                            <button type="submit" class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Save Product</button>
+                        </form>
+                    `;
+                } else if (type === 'camera') {
+                    formHtml = `
+                        <form id="add-camera-form">
+                            <div class="mb-4">
+                                <label for="camera-name" class="block text-sm font-medium">Camera Name</label>
+                                <input type="text" id="camera-name" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="camera-status" class="block text-sm font-medium">Status</label>
+                                <select id="camera-status" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
+                                    <option>Active</option>
+                                    <option>Offline</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="camera-zone" class="block text-sm font-medium">Zone</label>
+                                <input type="text" id="camera-zone" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md" required>
+                            </div>
+                            <button type="submit" class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Save Camera</button>
+                        </form>
+                    `;
+                }
+                document.getElementById('form-modal-title').innerText = `Add New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                document.getElementById('form-modal-content').innerHTML = formHtml;
+                formModal.classList.remove('hidden');
+            });
         });
-        el.addEventListener('mouseleave', () => {
-            el.classList.remove('shadow-2xl', 'transform', '-translate-y-1');
-        });
-    });
 
-    closeOverlay.addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
+        document.getElementById('chart-type-selector').addEventListener('change', (e) => openOverlay(e.target.value));
+        
+        document.getElementById('floor-plan-upload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) console.log('Uploaded file:', file.name);
+        });
 
-    chartTypeSelector.addEventListener('change', (e) => {
-        openOverlay(e.target.value);
-    });
+        document.getElementById('download-report-btn').addEventListener('click', downloadReport);
+    }
 
     function openOverlay(chartType) {
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-
-        if (overlayChart) {
-            overlayChart.destroy();
-        }
-
-        overlayChart = new Chart(overlayChartCanvas, {
+        overlayModal.classList.remove('hidden');
+        const ctx = document.getElementById('overlay-chart').getContext('2d');
+        if (overlayChart) overlayChart.destroy();
+        overlayChart = new Chart(ctx, {
             type: chartType,
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -166,69 +279,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     data: [65, 59, 80, 81, 56, 55],
                     backgroundColor: '#4F46E5',
                     borderColor: '#4F46E5',
-                    fill: false,
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
+
+        const explanationDiv = document.getElementById('chart-explanation');
+        const title = document.getElementById('overlay-title').innerText;
+        explanationDiv.innerHTML = `This <strong>${chartType.charAt(0).toUpperCase() + chartType.slice(1)} chart</strong> for <strong>${title}</strong> shows the trend of interactions over the past six months. You can switch to other chart types using the dropdown above to visualize the data in different ways.`
     }
 
-    // --- EDIT MODAL ---
-    const editModal = document.getElementById('edit-modal');
-    const closeEditModal = document.getElementById('close-edit-modal');
-    const editModalTitle = document.getElementById('edit-modal-title');
-    const editModalContent = document.getElementById('edit-modal-content');
-
-    function openEditModal(title, content) {
-        editModalTitle.innerText = title;
-        editModalContent.innerHTML = content;
-        editModal.classList.remove('hidden');
-        editModal.classList.add('flex');
-    }
-
-    closeEditModal.addEventListener('click', () => {
-        editModal.classList.add('hidden');
-    });
-
-    // --- EVENT LISTENERS FOR ADD/EDIT ---
-    document.querySelector('#product-list').previousElementSibling.querySelector('.bg-blue-600').addEventListener('click', () => {
-        openEditModal('Add Product', '<input type="text" placeholder="Product Name" class="w-full p-2 border rounded">');
-    });
-
-    document.querySelector('#camera-list').previousElementSibling.querySelector('.bg-blue-600').addEventListener('click', () => {
-        openEditModal('Add Camera', '<input type="text" placeholder="Camera Name" class="w-full p-2 border rounded">');
-    });
-
-    document.querySelector('#entrance-list').previousElementSibling.querySelector('.bg-blue-600').addEventListener('click', () => {
-        openEditModal('Add Entrance', '<input type="text" placeholder="Entrance Name" class="w-full p-2 border rounded">');
-    });
-
-    // --- DOWNLOAD REPORT ---
-    document.getElementById('download-report').addEventListener('click', () => {
+    // --- REPORTING --- //
+    function downloadReport() {
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Category,Value\r\n";
-        Object.keys(dummyData.keyStats).forEach(key => {
-            csvContent += `${key},${dummyData.keyStats[key]}\r\n`;
-        });
+        csvContent += "Mall Analytics Report\r\n";
+        csvContent += "Key Stats\r\nCategory,Value\r\n";
+        Object.entries(dummyData.keyStats).forEach(([key, value]) => csvContent += `${key},${value}\r\n`);
+        
+        csvContent += "\r\nProducts\r\nID,Name,Interactions,Category\r\n";
+        dummyData.products.forEach(p => csvContent += `${p.id},${p.name},${p.interactions},${p.category}\r\n`);
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "mall_analytics_report.csv");
-        document.body.appendChild(link); 
+        document.body.appendChild(link);
         link.click();
-    });
+        link.remove();
+    }
 
-    // --- UPLOAD ---
-    const floorPlanUpload = document.getElementById('floor-plan-upload');
-    floorPlanUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            console.log('Uploaded file:', file.name);
-            // Here you would typically handle the file upload, e.g., by sending it to a server.
-        }
-    });
+    initializeDashboard();
 });

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +11,19 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white dark:bg-gray-800 shadow-md flex-shrink-0">
+        <aside id="sidebar" class="w-64 bg-white dark:bg-gray-800 shadow-md flex-shrink-0 sidebar fixed lg:relative -translate-x-full lg:translate-x-0">
             <div class="flex items-center justify-between p-4">
                 <h1 class="text-2xl font-bold">Mall of Analytics</h1>
-                <button id="sidebar-toggle" class="lg:hidden">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                <button id="sidebar-close" class="lg:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             <nav class="mt-4">
@@ -88,20 +91,24 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-6">
-            <!-- Header -->
-            <header class="flex items-center justify-between">
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex items-center justify-between p-4 shadow-md bg-white dark:bg-gray-800">
                 <div class="flex items-center">
-                    <span class="relative inline-block">
-                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-2 ring-white"></span>
-                        <span class="text-sm font-semibold">Online</span>
-                    </span>
+                    <button id="sidebar-open" class="lg:hidden mr-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <div id="status-indicator" class="flex items-center">
+                        <span class="relative inline-block">
+                            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-2 ring-white"></span>
+                            <span class="text-sm font-semibold">Online</span>
+                        </span>
+                    </div>
                     <div class="ml-4">
                         <input type="text" placeholder="Search..." class="px-4 py-2 border rounded-md bg-gray-200 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <button id="download-report" class="mr-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Download Report</button>
+                    <button id="download-report-btn" class="mr-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Download Report</button>
                     <button id="theme-toggle" class="mr-4">
                         <svg id="theme-toggle-dark-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                         <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-12.66l-.707.707M4.04 19.96l-.707.707M21 12h-1M4 12H3m16.66-7.96l-.707-.707M4.04 4.04l-.707-.707"></path></svg>
@@ -114,190 +121,125 @@
                 </div>
             </header>
 
-            <!-- Dashboard Grid -->
-            <div class="mt-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-lg font-semibold">Total People Detected</h3>
-                        <p id="total-people" class="text-4xl font-bold mt-2"></p>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-lg font-semibold">Current People in Mall</h3>
-                        <p id="current-people" class="text-4xl font-bold mt-2"></p>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-lg font-semibold">Average Dwell Time</h3>
-                        <p id="avg-dwell-time" class="text-4xl font-bold mt-2"></p>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-lg font-semibold">Hot Zones</h3>
-                        <p id="hot-zones" class="text-4xl font-bold mt-2"></p>
-                    </div>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 p-6">
+                <!-- Key Stats -->
+                <div id="key-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Key stats cards will be injected here -->
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                    <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <!-- Main Dashboard Panels -->
+                <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Activity Heatmap -->
+                    <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Activity Heatmap">
                         <h3 class="text-lg font-semibold">Activity Heatmap</h3>
-                        <div class="mt-4 h-96 grid grid-cols-10 grid-rows-10 gap-1">
-                            <div class="bg-red-500 opacity-75"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-75"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-75"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-75"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-75"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-red-500 opacity-25"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-25"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-25"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-25"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-25"></div>
-                            <div class="bg-red-500 opacity-75"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-75"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-75"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-75"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-75"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-red-500 opacity-25"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-25"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-25"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-25"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-25"></div>
-                            <div class="bg-red-500 opacity-75"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-75"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-75"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-75"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-75"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-red-500 opacity-25"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-25"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-25"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-25"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-25"></div>
-                            <div class="bg-red-500 opacity-75"></div>
-                            <div class="bg-red-500 opacity-50"></div>
-                            <div class="bg-yellow-500 opacity-75"></div>
-                            <div class="bg-yellow-500 opacity-50"></div>
-                            <div class="bg-green-500 opacity-75"></div>
-                            <div class="bg-green-500 opacity-50"></div>
-                            <div class="bg-blue-500 opacity-75"></div>
-                            <div class="bg-blue-500 opacity-50"></div>
-                            <div class="bg-indigo-500 opacity-75"></div>
-                            <div class="bg-indigo-500 opacity-50"></div>
+                        <div id="heatmap-container" class="mt-4 h-96 grid grid-cols-10 grid-rows-10 gap-1">
+                            <!-- Heatmap cells will be injected here -->
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+
+                    <!-- Top Products -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Top Products">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold">Top Products</h3>
-                            <div>
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Add</button>
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700">Edit</button>
-                            </div>
+                            <button class="add-btn px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" data-type="product">Add</button>
                         </div>
-                        <ul id="product-list" class="mt-4 space-y-4"></ul>
+                        <ul id="product-list" class="mt-4 space-y-4">
+                            <!-- Product list will be injected here -->
+                        </ul>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Zone Activity -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Zone Activity">
                         <h3 class="text-lg font-semibold">Zone Activity</h3>
-                        <div class="mt-4 h-64">
-                            <canvas id="zone-chart"></canvas>
-                        </div>
+                        <div class="mt-4 h-64"><canvas id="zone-chart"></canvas></div>
                     </div>
+
+                    <!-- Camera Status -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold">Camera Status</h3>
-                            <div>
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Add</button>
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700">Edit</button>
-                            </div>
+                            <button class="add-btn px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" data-type="camera">Add</button>
                         </div>
-                        <ul id="camera-list" class="mt-4 space-y-2"></ul>
+                        <ul id="camera-list" class="mt-4 space-y-2">
+                            <!-- Camera list will be injected here -->
+                        </ul>
                     </div>
+
+                    <!-- Floor Plan -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-semibold">Entrance Data</h3>
-                            <div>
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Add</button>
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700">Edit</button>
-                            </div>
+                        <h3 class="text-lg font-semibold">Floor Plan</h3>
+                        <div class="mt-4 h-64 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                            <p>Floor Plan Placeholder</p>
                         </div>
-                        <ul id="entrance-list" class="mt-4 space-y-2"></ul>
+                        <div class="mt-4 flex justify-end space-x-2">
+                            <input type="file" id="floor-plan-upload" class="hidden">
+                            <button onclick="document.getElementById('floor-plan-upload').click()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Upload</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
+
+                <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Dwell Time -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Top Zones by Dwell Time">
+                        <h3 class="text-lg font-semibold">Top Zones by Dwell Time</h3>
+                        <div class="mt-4 h-80"><canvas id="dwell-time-chart"></canvas></div>
+                    </div>
+
+                    <!-- Entrance Usage -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg interactive-panel" data-modal-title="Busiest Entrances">
+                        <h3 class="text-lg font-semibold">Busiest Entrances</h3>
+                        <div class="mt-4 h-80"><canvas id="entrance-chart"></canvas></div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <!-- Overlay Modal -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 w-4/5 h-4/5 rounded-2xl shadow-lg p-6">
+    <div id="overlay-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 w-11/12 md:w-4/5 h-4/5 rounded-2xl shadow-lg p-6 flex flex-col">
             <div class="flex justify-between items-center">
-                <h2 id="overlay-title" class="text-2xl font-bold">Drill-Down View</h2>
+                <h2 id="overlay-title" class="text-2xl font-bold"></h2>
                 <button id="close-overlay" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="mt-4">
-                <div class="border-b border-gray-200 dark:border-gray-700">
-                    <nav class="flex space-x-4" aria-label="Tabs">
-                        <a href="#" class="px-3 py-2 font-medium text-sm rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Overview</a>
-                        <a href="#" class="px-3 py-2 font-medium text-sm rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Trends</a>
-                        <a href="#" class="px-3 py-2 font-medium text-sm rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Insights</a>
-                    </nav>
+            <div class="mt-4 border-b border-gray-200 dark:border-gray-700">
+                <nav id="overlay-tabs" class="flex space-x-4" aria-label="Tabs">
+                    <a href="#" class="overlay-tab px-3 py-2 font-medium text-sm rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Overview</a>
+                    <a href="#" class="overlay-tab px-3 py-2 font-medium text-sm rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Trends</a>
+                    <a href="#" class="overlay-tab px-3 py-2 font-medium text-sm rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Insights</a>
+                </nav>
+            </div>
+            <div class="mt-4 flex-1 flex flex-col">
+                <div class="flex justify-end mb-4">
+                    <select id="chart-type-selector" class="px-4 py-2 border rounded-md bg-gray-200 dark:bg-gray-700">
+                        <option value="doughnut">Doughnut</option>
+                        <option value="line">Line</option>
+                        <option value="bar">Column</option>
+                    </select>
                 </div>
-                <div class="mt-4">
-                    <div class="flex justify-end mb-4">
-                        <select id="chart-type-selector" class="px-4 py-2 border rounded-md bg-gray-200 dark:bg-gray-700">
-                            <option value="doughnut">Doughnut</option>
-                            <option value="line">Line</option>
-                            <option value="bar">Column</option>
-                        </select>
-                    </div>
-                    <div class="h-96">
-                        <canvas id="overlay-chart"></canvas>
-                    </div>
+                <div class="relative flex-grow"><canvas id="overlay-chart"></canvas></div>
+                <div id="chart-explanation" class="mt-4 text-sm text-gray-600 dark:text-gray-400 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <!-- Chart explanation will be injected here -->
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 w-1/3 rounded-2xl shadow-lg p-6">
-            <div class="flex justify-between items-center">
-                <h2 id="edit-modal-title" class="text-2xl font-bold"></h2>
-                <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+    
+    <!-- Add/Edit Form Modal -->
+    <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-lg p-6">
+             <div class="flex justify-between items-center">
+                <h2 id="form-modal-title" class="text-2xl font-bold"></h2>
+                <button id="close-form-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div id="edit-modal-content" class="mt-4">
+            <div id="form-modal-content" class="mt-4">
+                <!-- Form content will be injected here -->
             </div>
         </div>
     </div>
